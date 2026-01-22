@@ -1,12 +1,22 @@
 import './App.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TabContainer from './TabContainer';
+import { tabsData } from './Data/tabs';
 
 function App() {
+  
 
-  let [todolist, settodolist] = useState([]);
+  let [todolist, settodolist] = useState(() => {
+    let saved = localStorage.getItem("todolist");
+    return saved ? JSON.parse(saved) : [];
+  });
+  useEffect(() => {
+    localStorage.setItem("todolist", JSON.stringify(todolist));
+  }, [todolist]);
+
+
 
   const errmsg = () => toast.error("ToDo Name Already Exists....");
   
@@ -18,7 +28,7 @@ function App() {
     if (!ToName) return; // optional empty check
 
     if (!todolist.includes(ToName)) {
-      let finalToDO = [...todolist, ToName];
+      let finalToDO = [...todolist, { text: ToName, completed: false }];
       settodolist(finalToDO);
       event.target.reset(); // optional
     } else {
@@ -38,7 +48,7 @@ function App() {
   return (
     <div className="App">
 
-      <TabContainer/>
+      <TabContainer />
       <h1>TODO List</h1>
 
       <form onSubmit={saveTodoList}>
@@ -60,26 +70,73 @@ function App() {
 
 export default App;
 
-function ToDoListItems({value, indexnumber, todolist, settodolist}){
-
+function ToDoListItems({ value, indexnumber, todolist, settodolist }) {
 
   let [status, setStatus] = useState(false);
-  const successmsg = () => toast.success('ToDo Deleted Successflly...');
+  let [isEdit, setIsEdit] = useState(false);
+  let [editValue, setEditValue] = useState(value);
 
-  let DeleteRow= () =>{
-    let FinalData = todolist.filter((v, i) => i != indexnumber)
-    settodolist(FinalData)
+  const successmsg = () => toast.success('ToDo Deleted Successfully...');
+
+  let DeleteRow = (e) => {
+    e.stopPropagation();
+    let FinalData = todolist.filter((v, i) => i !== indexnumber);
+    settodolist(FinalData);
     successmsg();
-  }
+  };
 
-  let CheckStatus = () =>{
-    setStatus(!status)
+  let CheckStatus = () => {
+    if (!isEdit) {
+      setStatus(!status);
+    }
+  };
 
-  }
+  let startEdit = (e) => {
+    e.stopPropagation();
+    setIsEdit(true);
+  };
 
-  return( 
-    <li className={(status) ? 'completeTodo' : ''} onClick={CheckStatus}>
-      {indexnumber+1}. {value} <span onClick={DeleteRow}>&times;</span>
+  let saveEdit = () => {
+    let updatedTodos = todolist.map((v, i) =>
+      i === indexnumber ? editValue : v
+    );
+    settodolist(updatedTodos);
+    setIsEdit(false);
+  };
+
+  return (
+    <li
+      className={(status) ? 'completeTodo' : ''}
+      onClick={CheckStatus}
+    >
+      {indexnumber + 1}.{" "}
+
+      {isEdit ? (
+        <input
+          type="text"
+          value={editValue}
+          autoFocus
+          onChange={(e) => setEditValue(e.target.value)}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") saveEdit();
+            if (e.key === "Escape") setIsEdit(false);
+          }}
+        />
+      ) : (
+        value
+      )}
+
+      {" "}
+      {!isEdit && (
+        <span onClick={startEdit} style={{ marginRight: "20px", cursor: "pointer" }}>
+          ✏️
+        </span>
+      )}
+
+      <span onClick={DeleteRow} style={{ cursor: "pointer" }}>
+        &times;
+      </span>
     </li>
-  )
+  );
 }

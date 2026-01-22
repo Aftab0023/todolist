@@ -14,10 +14,12 @@ export default function TabContainer() {
     <div className='tabsOuter'>
         <h1 style={{textAlign: 'left'}}>Tabbing System </h1>
         <ul>
+        
           {tabsData.map((tabsitem, index)=>{
             return(
               <li>
-                <button onClick={() => changeData(index)} className={activetab == index ? 'activeButton' : ''}>
+                <button onClick={() => changeData(index)} 
+               key={index} className={activetab == index ? 'activeButton' : ''}>
                   {tabsitem.title}
                 </button>
               </li>
@@ -27,7 +29,7 @@ export default function TabContainer() {
         </ul>
 
         {activecontent !== undefined ?
-            <p>
+            <p >
               {activecontent.description}
             </p>
             :
