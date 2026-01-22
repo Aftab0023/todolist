@@ -88,4 +88,26 @@ form button {
 .tabsOuter {
   width: 70%;
   margin: auto;
+
+}
+
+.tabsOuter ul {
+  display: flex;
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+  gap: 10px;
+}
+
+.tabsOuter ul li button{
+  background-color: whitesmoke;
+  color: black;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 20px;
+  margin-right: 18px;
+  font-weight: 600;
+}
+.activeButton{
+  background-color: #61dafb !important;
 }
